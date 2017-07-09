@@ -1,10 +1,28 @@
 [
     {
         "name": "EVGA GeForce GTX 1080 Ti FTW3 GAMING, 11GB GDDR5X, iCX Technology - 9 Thermal Sensors & RGB LED G/P/M, 3x Async Fan Control, Optimized Airflow Design Graphics Card 11G-P4-6696-KR", 
-        "price": "$779.99", 
+        "sales_price": "$854.59", 
+        "original_price": "", 
+        "category": "Electronics > Computers & Accessories > Computer Components > Graphics Cards", 
+        "availability": "Only 3 left in stock - order soon.", 
         "total_ratings": "4.5 out of 5 stars", 
-        "customer_reviews": "182", 
+        "customer_reviews": "183", 
         "#_of_answers": "112 answered questions", 
+        "Product_Details": {
+            "Item model number": "11G-P4-6696-KR", 
+            "Graphics Card Ram Size": "11 GB", 
+            "Shipping Weight": "4.2 pounds (View shipping rates and policies)", 
+            "Brand Name": "EVGA", 
+            "ASIN": "B06Y15DWXR", 
+            "Item Weight": "4.2 pounds", 
+            "Series": "Graphics Card 11G-P4-6696-KR", 
+            "Product Dimensions": "12.8 x 2.8 x 9.5 inches", 
+            "Date First Available": "April 3, 2017", 
+            "Memory Speed": "11000 MHz", 
+            "Item Dimensions  L x W x H": "12.81 x 2.81 x 9.5 inches", 
+            "Best Sellers Rank": "#3 in Computers & Accessories > Computer Components > Graphics Cards", 
+            "Graphics Coprocessor": "geforce gtx"
+        }, 
         "ratings": {
             "2 star": "4%", 
             "1 star": "19%", 

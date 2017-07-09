@@ -5,7 +5,7 @@ from exceptions import ValueError
 from dateutil import parser as dateparser
 from time import sleep
 from collections import OrderedDict
- 
+from bs4 import BeautifulSoup
 
 def AmzonParser(ASIN):
 	# Added Retrying 
@@ -16,39 +16,49 @@ def AmzonParser(ASIN):
 			# Add some recent user agent to prevent amazon from blocking the request 
 			# Find some chrome user agent strings  here https://udger.com/resources/ua-list/browser-detail?browser=Chrome
 			headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
-			page = requests.get(amazon_url,headers = headers) #Enter proxies
+			page = requests.get(amazon_url, headers = headers) #Enter proxies and user agent in headers
 			page_response = page.text
 
 			parser = html.fromstring(page_response)
 			XPATH_AGGREGATE = '//span[@id="acrCustomerReviewText"]'
 			XPATH_REVIEW_SECTION_1 = '//div[contains(@id,"reviews-summary")]'
 			XPATH_REVIEW_SECTION_2 = '//div[@data-hook="review"]'
-
 			XPATH_AGGREGATE_RATING = '//table[@id="histogramTable"]//tr'
 			XPATH_PRODUCT_NAME = '//h1//span[@id="productTitle"]//text()'
-			XPATH_PRODUCT_PRICE  = '//span[@id="priceblock_ourprice"]/text()'
+			XPATH_SALE_PRICE = '//span[contains(@id,"ourprice") or contains(@id,"saleprice")]/text()'
+			XPATH_ORIGINAL_PRICE = '//td[contains(text(),"List Price") or contains(text(),"M.R.P") or contains(text(),"Price")]/following-sibling::td/text()'
+			XPATH_CATEGORY = '//a[@class="a-link-normal a-color-tertiary"]//text()'
+			XPATH_AVAILABILITY = '//div[@id="availability"]//text()'
 			XPATH_REVIEW_COUNT =  '//span[@data-hook="total-review-count"]//text()'
 			XPATH_GROSS_RATING = '//span[@data-hook="rating-out-of-text"]//text()'
 			XPATH_ANSWERS = '//a[@id="askATFLink"]/span//text()'
 
-			#XPATH_TABLES = 
+			#Product details table
+			soup = BeautifulSoup(page.content,'lxml')
+			prod = {}
+			tables = soup.find_all('table', attrs={'class':'a-keyvalue prodDetTable'})
+			tables = soup.find_all('table', attrs={'class':'a-keyvalue prodDetTable'})
+			for rows in tables:
+			    for row in rows.find_all('tr'):
+					key = row.find('th').get_text().strip()
+					if (key not in ['International Shipping', 'Domestic Shipping', 'Customer Reviews']):
+						value = row.find('td').get_text().strip()
+						prod[key] = value
 
-			#XPATH_RANK = 
-			#XPATH_WEIGHT = 
-			
-			raw_product_price = parser.xpath(XPATH_PRODUCT_PRICE)
-			product_price = ''.join(raw_product_price).replace(',','')
-
+			raw_sales_price = parser.xpath(XPATH_SALE_PRICE)
+			sales_price = ' '.join(''.join(raw_sales_price).split()).strip() if raw_sales_price else None
+			raw_original_price = parser.xpath(XPATH_ORIGINAL_PRICE)
+			original_price = ''.join(raw_original_price).strip() if raw_original_price else None
+			raw_category = parser.xpath(XPATH_CATEGORY)
+			category = ' > '.join([i.strip() for i in raw_category]) if raw_category else None
+			raw_availability = parser.xpath(XPATH_AVAILABILITY)
+			availability = ''.join(raw_availability).strip()
 			raw_product_name = parser.xpath(XPATH_PRODUCT_NAME)
 			product_name = ''.join(raw_product_name).strip()
-
-
 			raw_review_count = parser.xpath(XPATH_REVIEW_COUNT)
 			review_count = ''.join(raw_review_count).strip()
-
 			raw_gross_rating = parser.xpath(XPATH_GROSS_RATING)
 			gross_rating = ''.join(raw_gross_rating).strip()
-
 			raw_answers = parser.xpath(XPATH_ANSWERS)
 			answers = ''.join(raw_answers).strip()
 
@@ -127,12 +137,15 @@ def AmzonParser(ASIN):
 				reviews_list.append(review_dict)
 
 			data = OrderedDict()
-
 			data['name'] = product_name
-			data['price'] = product_price
+			data['sales_price'] = sales_price
+			data['original_price'] = original_price
+			data['category'] = category
+			data['availability'] = availability
 			data['total_ratings'] = gross_rating
 			data['customer_reviews'] = review_count
 			data['#_of_answers'] = answers
+			data['Product_Details'] = prod
 			data['ratings'] = ratings_dict
 			data['reviews'] = reviews_list
 			data['url'] = amazon_url		
